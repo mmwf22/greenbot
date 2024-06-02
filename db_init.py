@@ -1,0 +1,27 @@
+import sqlite3
+
+# Verbindung zur SQLite-Datenbank herstellen (falls noch nicht vorhanden, wird sie erstellt)
+conn = sqlite3.connect('plants.db')
+
+# Cursor-Objekt erstellen, um SQL-Befehle auszuführen
+cursor = conn.cursor()
+
+# SQL-Befehl zum Erstellen der Tabelle für Pflanzen
+create_table_query = """
+CREATE TABLE IF NOT EXISTS Pflanzen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    pflanzabstand REAL NOT NULL,
+    reihenabstand REAL NOT NULL,
+    saattiefe REAL NOT NULL
+);
+"""
+
+# Tabelle erstellen
+cursor.execute(create_table_query)
+
+# Änderungen speichern und Verbindung schließen
+conn.commit()
+conn.close()
+
+print("Datenbank 'plants.db' und Tabelle 'Pflanzen' erfolgreich erstellt.")
