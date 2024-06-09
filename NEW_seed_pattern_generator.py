@@ -1,7 +1,8 @@
 # Pflanzeninformationen
 plants = {
-    "Karotten": {"plant_spacing": 1, "row_spacing": 20},
-    "Salat": {"plant_spacing": 25, "row_spacing": 25}
+    "Karotten": {"plant_spacing": 1, "row_spacing": 10},
+    "Salat": {"plant_spacing": 25, "row_spacing": 25},
+    "Rote Beete" : {"plant_spacing": 5, "row_spacing": 20}
 }
 
 # Beetgröße (in cm)
