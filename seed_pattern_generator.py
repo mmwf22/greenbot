@@ -23,19 +23,32 @@ import sqlite3
 def fetch_plant_data(plant_names):
     conn = sqlite3.connect('db/plants.db')
     cursor = conn.cursor()
-    
     placeholders = ','.join('?' for _ in plant_names)
     query = f"SELECT name, pflanzabstand, reihenabstand FROM Pflanzen WHERE name IN ({placeholders})"
     cursor.execute(query, plant_names)
-    
     plant_data = cursor.fetchall()
     conn.close()
-    
     return plant_data
 
 # Function to calculate the seed pattern
 def calculate_seed_pattern(bed_width, bed_height, plant_data):
     grid = [['_' for _ in range(bed_width)] for _ in range(bed_height)]
+    current_row = 0
+    for plant in plant_data:
+        name, plant_spacing, row_spacing, _ = plant  # Ignore the fourth value (saattiefe)
+        plant_spacing = int(plant_spacing)
+        row_spacing = int(row_spacing)
+        # Fill rows with the current plant type
+        for _ in range(row_spacing):
+            if current_row >= bed_height:
+                break
+            for col in range(0, bed_width, plant_spacing):
+                grid[current_row][col] = name[:2]  # Display first two letters of plant name
+            current_row += 1
+
+            if current_row >= bed_height:
+                break
+    return grid
     
     current_row = 0
     for plant in plant_data:
@@ -60,6 +73,7 @@ def calculate_seed_pattern(bed_width, bed_height, plant_data):
 
 # Function to display the seed pattern in the terminal
 def display_seed_pattern(seed_pattern):
+    # Muster formatieren und in der Konsole ausgeben
     for row in seed_pattern:
         print(' '.join(row))
 
