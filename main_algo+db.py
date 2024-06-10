@@ -37,7 +37,6 @@ def calculate_sowing_pattern(beet_width, beet_height, plants):
     pattern = []
     plant_index = 0
 
-    # Der halbe Reihenabstand der zuerst zu pflanzenden Pflanzenart
     initial_y_position = int(round(plants[0][2] / 2))
     y_position = initial_y_position
 
@@ -49,32 +48,41 @@ def calculate_sowing_pattern(beet_width, beet_height, plants):
 
         row = []
         x_position = initial_x_position
+        toggle = False
 
         while x_position < beet_width:
-            row.append(plant[0][0])
+            # Adjust y_position for zig-zag pattern
+            if toggle:
+                row_y_position = y_position + int(round(plant_spacing / 2))
+            else:
+                row_y_position = y_position
+            
+            row.append((plant[0], x_position, row_y_position))
             x_position += plant_spacing
+            toggle = not toggle
 
-        pattern.append((plant[0], row, y_position))
+        pattern.append(row)
         y_position += row_spacing
         plant_index += 1
 
-    return pattern
+    # Determine if any selected plants were not planted
+    planted_plants = set(p[0] for row in pattern for p in row)
+    not_planted_plants = [p[0] for p in plants if p[0] not in planted_plants]
 
-
+    return pattern, not_planted_plants
 
 def print_sowing_pattern(pattern, beet_width, beet_height):
     beet_grid = [['.' for _ in range(beet_width)] for _ in range(beet_height)]
 
-    for plant, row, y_start in pattern:
-        plant_spacing = next(p[1] for p in selected_plants if p[0] == plant)
-        initial_x_position = int(round(plant_spacing / 2))
-        for i, plant_name in enumerate(row):
-            x_position = initial_x_position + i * plant_spacing
-            if x_position < beet_width:
-                beet_grid[int(y_start)][int(x_position)] = plant_name
+    for row in pattern:
+        for plant, x_pos, y_pos in row:
+            if 0 <= x_pos < beet_width and 0 <= y_pos < beet_height:
+                beet_grid[int(y_pos)][int(x_pos)] = plant[0]
 
     for line in beet_grid:
         print("".join(line))
+
+    return beet_grid
 
 # Hauptprogramm
 plants = fetch_plants_from_db()
@@ -89,5 +97,11 @@ beet_width = 100
 beet_height = 100
 
 # Saatmuster berechnen und ausgeben
-sowing_pattern = calculate_sowing_pattern(beet_width, beet_height, selected_plants)
+sowing_pattern, not_planted_plants = calculate_sowing_pattern(beet_width, beet_height, selected_plants)
 print_sowing_pattern(sowing_pattern, beet_width, beet_height)
+
+# Print a message if some plants could not be planted
+if not_planted_plants:
+    print("Die folgenden Pflanzen konnten wegen des begrenzte Platzes nicht gepflanzt werden:")
+    for plant in not_planted_plants:
+        print(f"- {plant}")
