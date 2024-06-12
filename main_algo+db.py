@@ -48,11 +48,14 @@ def calculate_sowing_pattern(bed_width, bed_height, plants):
     initial_y_position = int(round(plants[0][2] / 2))
     y_position = initial_y_position
 
-    while y_position + int(round(plants[plant_index % len(plants)][2] / 2)) < bed_height:
+    while True:
         plant = plants[plant_index % len(plants)]
         row_spacing = plant[2]
         plant_spacing = plant[1]
         initial_x_position = int(round(plant_spacing / 2))
+
+        if y_position + int(round(row_spacing / 2)) >= bed_height:
+            break
 
         row = []
         x_position = initial_x_position
@@ -64,7 +67,7 @@ def calculate_sowing_pattern(bed_width, bed_height, plants):
                 row_y_position = y_position + int(round(plant_spacing / 2))
             else:
                 row_y_position = y_position
-            
+
             row.append((plant[0], x_position, row_y_position))
             x_position += plant_spacing
             toggle = not toggle
@@ -73,11 +76,29 @@ def calculate_sowing_pattern(bed_width, bed_height, plants):
         y_position += row_spacing
         plant_index += 1
 
+    # Adjust last row to be half row spacing from the edge
+    if pattern:
+        last_row = pattern[-1]
+        last_row_plant_name, last_x_position, last_y_position = last_row[0]
+        last_row_plant = next(p for p in plants if p[0] == last_row_plant_name)
+        last_row_spacing = last_row_plant[2]
+        y_position = bed_height - int(round(last_row_spacing / 2))
+
+        for i in range(len(last_row)):
+            plant_name, x_position, _ = last_row[i]
+            if i % 2 == 0:
+                last_row[i] = (plant_name, x_position, y_position)
+            else:
+                last_row[i] = (plant_name, x_position, y_position + int(round(last_row_plant[1] / 2)))
+
+        pattern[-1] = last_row
+
     # Determine if any selected plants were not planted
     planted_plants = set(p[0] for row in pattern for p in row)
     not_planted_plants = [p[0] for p in plants if p[0] not in planted_plants]
 
     return pattern, not_planted_plants
+
 
 ## Print out seeding pattern to console
 def print_sowing_pattern(pattern, bed_width, bed_height):
