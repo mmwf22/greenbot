@@ -1,21 +1,28 @@
+# Improt of needed modules
 import sqlite3
 
+# Functions
+
+## Get plant information from DB and save into variable
 def fetch_plants_from_db(db_path='db/plants.db'):
+    # Connect to DB
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    # Pflanzendaten abrufen
+    # Fetch plant data from DB
     cursor.execute("SELECT name, pflanzabstand, reihenabstand FROM Pflanzen")
     plants = cursor.fetchall()
 
     conn.close()
     return plants
 
+## Present plant choice to user
 def display_plant_options(plants):
     print("Verfügbare Pflanzen:")
     for idx, plant in enumerate(plants, start=1):
         print(f"{idx}. {plant[0]} (Pflanzabstand: {plant[1]} cm, Reihenabstand: {plant[2]} cm)")
 
+## Let the user choose the plants to sow
 def get_user_selection(plants):
     selected_plants = []
     while True:
@@ -33,6 +40,7 @@ def get_user_selection(plants):
             print("Ungültige Eingabe. Bitte geben Sie eine Zahl ein.")
     return selected_plants
 
+## Calculate sowing pattern based on user selection
 def calculate_sowing_pattern(beet_width, beet_height, plants):
     pattern = []
     plant_index = 0
@@ -71,6 +79,7 @@ def calculate_sowing_pattern(beet_width, beet_height, plants):
 
     return pattern, not_planted_plants
 
+## Print out seeding pattern to console
 def print_sowing_pattern(pattern, beet_width, beet_height):
     beet_grid = [['.' for _ in range(beet_width)] for _ in range(beet_height)]
 
@@ -84,23 +93,25 @@ def print_sowing_pattern(pattern, beet_width, beet_height):
 
     return beet_grid
 
-# Hauptprogramm
+
+# Main
 plants = fetch_plants_from_db()
 selected_plants = get_user_selection(plants)
 
+# Exit programm if no plants have been chosen by user
 if not selected_plants:
     print("Keine Pflanzen ausgewählt. Beenden...")
     exit()
 
-# Beetgröße (in cm)
+## Garden bed size
 beet_width = 100
 beet_height = 100
 
-# Saatmuster berechnen und ausgeben
+## Calculate sowing pattern and print it to console
 sowing_pattern, not_planted_plants = calculate_sowing_pattern(beet_width, beet_height, selected_plants)
 print_sowing_pattern(sowing_pattern, beet_width, beet_height)
 
-# Print a message if some plants could not be planted
+## Print a message if some plants could not be planted
 if not_planted_plants:
     print("Die folgenden Pflanzen konnten wegen des begrenzte Platzes nicht gepflanzt werden:")
     for plant in not_planted_plants:
