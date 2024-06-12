@@ -41,14 +41,14 @@ def get_user_selection(plants):
     return selected_plants
 
 ## Calculate sowing pattern based on user selection
-def calculate_sowing_pattern(beet_width, beet_height, plants):
+def calculate_sowing_pattern(bed_width, bed_height, plants):
     pattern = []
     plant_index = 0
 
     initial_y_position = int(round(plants[0][2] / 2))
     y_position = initial_y_position
 
-    while y_position + int(round(plants[plant_index % len(plants)][2] / 2)) < beet_height:
+    while y_position + int(round(plants[plant_index % len(plants)][2] / 2)) < bed_height:
         plant = plants[plant_index % len(plants)]
         row_spacing = plant[2]
         plant_spacing = plant[1]
@@ -58,7 +58,7 @@ def calculate_sowing_pattern(beet_width, beet_height, plants):
         x_position = initial_x_position
         toggle = False
 
-        while x_position < beet_width:
+        while x_position < bed_width:
             # Adjust y_position for zig-zag pattern
             if toggle:
                 row_y_position = y_position + int(round(plant_spacing / 2))
@@ -80,18 +80,18 @@ def calculate_sowing_pattern(beet_width, beet_height, plants):
     return pattern, not_planted_plants
 
 ## Print out seeding pattern to console
-def print_sowing_pattern(pattern, beet_width, beet_height):
-    beet_grid = [['.' for _ in range(beet_width)] for _ in range(beet_height)]
+def print_sowing_pattern(pattern, bed_width, bed_height):
+    bed_grid = [['.' for _ in range(bed_width)] for _ in range(bed_height)]
 
     for row in pattern:
         for plant, x_pos, y_pos in row:
-            if 0 <= x_pos < beet_width and 0 <= y_pos < beet_height:
-                beet_grid[int(y_pos)][int(x_pos)] = plant[0]
+            if 0 <= x_pos < bed_width and 0 <= y_pos < bed_height:
+                bed_grid[int(y_pos)][int(x_pos)] = plant[0]
 
-    for line in beet_grid:
+    for line in bed_grid:
         print("".join(line))
 
-    return beet_grid
+    return bed_grid
 
 
 # Main
@@ -104,12 +104,12 @@ if not selected_plants:
     exit()
 
 ## Garden bed size
-beet_width = 100
-beet_height = 100
+bed_width = 100
+bed_height = 100
 
 ## Calculate sowing pattern and print it to console
-sowing_pattern, not_planted_plants = calculate_sowing_pattern(beet_width, beet_height, selected_plants)
-print_sowing_pattern(sowing_pattern, beet_width, beet_height)
+sowing_pattern, not_planted_plants = calculate_sowing_pattern(bed_width, bed_height, selected_plants)
+print_sowing_pattern(sowing_pattern, bed_width, bed_height)
 
 ## Print a message if some plants could not be planted
 if not_planted_plants:
