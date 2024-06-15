@@ -1,6 +1,6 @@
 import os
 from remi import start, App
-from remi.gui import VBox, HBox, Button, Label, Table, TableRow, TableItem, CheckBox
+from remi.gui import VBox, HBox, Button, Label, Table, TableRow, TableItem, CheckBox, Widget
 import sqlite3
 
 # Globale Variable für die Pflanzenliste
@@ -13,51 +13,47 @@ class PlantRobotApp(App):
         self.unicode_icons = {
             'Kopfsalat': '🥬',
             'Ruebli': '🥕',
-            'Randen': '🫑',
-            'Buschbohnen': '🌱',
+            'Randen': '🍠',
+            'Buschbohnen': '🌿',
             'Peperoni lang': '🌶️',
-            'Glockenpeperoni': '🍅',
-            'Chili': '🔥',
-            'Kohlrabi': '🌰',
+            'Glockenpeperoni': '🫑',
+            'Chili': '🌶',
+            'Kohlrabi': '🥦',
             'Broccoli': '🥦',
-            'Rosenkohl': '🌿',
+            'Rosenkohl': '🌱',
             'Tomaten': '🍅',
             'Cherry-Tomaten': '🍒',
             'Schnittsalat': '🥗',
-            'Pak Choi': '🌸',
-            'Mangold': '🌼',
+            'Pak Choi': '🥬',
+            'Mangold': '🥬',
             'Basilikum': '🌿',
-            'Petersilie': '🍀',
-            'Dill': '🌾'
+            'Petersilie': '🌿',
+            'Dill': '🌿'
         }
 
     def main(self):
-        # Hauptcontainer als VBox
-        main_container = VBox(width='100%', height='100%')
+        # Hauptcontainer als HBox
+        self.main_container = HBox(width='100%', height='100%', style={'justify-content': 'space-between', 'background-color': '#f8f8f8'})
 
-        # Oberer Bereich: HBox mit zwei Spalten (70% und 30%)
-        top_container = HBox(width='100%', height='70%')
-        main_container.append(top_container)
+        # Linker Bereich: Gitter zur Anzeige des Pflanzenmusters
+        self.pattern_grid = Table(width='100%', height='100%', style={'border': '1px solid #ccc', 'background-color': '#fff'})
+        self.main_container.append(self.pattern_grid, '75%')
 
-        # Unten Bereich: HBox mit zwei Spalten (70% und 30%)
-        bottom_container = HBox(width='100%', height='30%')
-        main_container.append(bottom_container)
+        # Rechter Bereich: VBox für Pflanzeninformationen, Pflanzenliste, Logo und Button
+        right_container = VBox(width='25%', height='100%', style={'border': '1px solid #ccc', 'background-color': '#fff', 'padding': '10px'})
+        self.main_container.append(right_container)
 
-        # Oben links: Gitter zur Anzeige des Pflanzenmusters
-        self.pattern_grid = Table(width='100%', height='100%')
-        top_container.append(self.pattern_grid, '70%')
+        # Pflanzeninformationen
+        self.plant_info_box = VBox(width='100%', height='30%', style={'margin-bottom': '10px'})
+        right_container.append(self.plant_info_box)
 
-        # Oben rechts: Buttons für alle verfügbaren Pflanzen
-        self.plant_buttons_container = VBox(width='100%', height='100%', style={'overflow-y': 'scroll'})
-        top_container.append(self.plant_buttons_container, '30%')
+        # Scrollbare Liste mit Pflanzen
+        self.plant_buttons_container = VBox(width='100%', height='50%', style={'overflow-y': 'scroll', 'border': '1px solid #ccc', 'margin-bottom': '10px'})
+        right_container.append(self.plant_buttons_container)
 
-        # Unten links: Informationen der ausgewählten Pflanze
-        self.plant_info_box = VBox(width='100%', height='100%')
-        bottom_container.append(self.plant_info_box, '70%')
-
-        # Unten rechts: Logo(Icon) anzeigen
-        self.logo = Label("🌱 Greenbot", width='100%', height='100%', style={'font-size': '24px', 'text-align': 'center'})
-        bottom_container.append(self.logo, '30%')
+        # Logo
+        self.logo = Label("🌱 Greenbot", width='100%', height='10%', style={'font-size': '24px', 'text-align': 'center', 'margin-bottom': '10px'})
+        right_container.append(self.logo)
 
         # Bestätigungsbutton zur Erstellung des Saatmusters
         self.confirm_button = Button("Saatmuster erstellen", style={
@@ -74,12 +70,12 @@ class PlantRobotApp(App):
             'cursor': 'pointer'
         })
         self.confirm_button.onclick.do(self.create_sowing_pattern)
-        bottom_container.append(self.confirm_button)
+        right_container.append(self.confirm_button, '10%')
 
         # Pflanzen aus der Datenbank laden und Buttons erstellen
         self.load_plants_from_db()
 
-        return main_container
+        return self.main_container
 
     def load_plants_from_db(self):
         global global_plants
@@ -98,20 +94,22 @@ class PlantRobotApp(App):
         conn.close()
 
         for plant in global_plants:
-            plant_box = HBox()
+            plant_box = HBox(style={'margin': '5px', 'align-items': 'center'})
             checkbox = CheckBox()
             checkbox.set_value(False)
             checkbox.attributes['value'] = plant[0].strip()  # Pflanzennamen als Checkbox-Wert hinzufügen und trimmen
             checkbox.onchange.do(self.on_plant_checkbox_change)
-            plant_label = Label(plant[0], style={'margin': '5px', 'font-size': '14px', 'font-weight': 'bold'})
-            plant_label.onclick.do(self.on_plant_button_click, plant)
+            plant_label = Label(plant[0], style={'margin-left': '5px', 'font-size': '14px', 'font-weight': 'bold'})
+            info_button = Button('Info', width=50, height=30, style={'margin-left': '10px'})
+            info_button.onclick.do(self.on_plant_button_click, plant)
             plant_box.append(checkbox)
             plant_box.append(plant_label)
+            plant_box.append(info_button)
             self.plant_buttons_container.append(plant_box)
 
     def on_plant_checkbox_change(self, widget, value):
         global global_plants
-        plant_name = widget.attributes['value']
+        plant_name = widget.attributes['value'].strip()  # Sicherstellen, dass der Name getrimmt wird
         checked = widget.get_value()
 
         # Pflanze anhand des Namens finden
@@ -121,14 +119,14 @@ class PlantRobotApp(App):
             if checked:
                 if plant not in self.selected_plants:
                     self.selected_plants.append(plant)
-                    print(f"Füge {plant} zu ausgewählten Pflanzen hinzu.")
+                    print(f"Füge {plant[0]} zu ausgewählten Pflanzen hinzu.")
             else:
                 self.selected_plants = [p for p in self.selected_plants if p[0] != plant[0]]
-                print(f"Entferne {plant} von den ausgewählten Pflanzen.")
+                print(f"Entferne {plant[0]} von den ausgewählten Pflanzen.")
         else:
             print(f"Fehler: Pflanze {plant_name} nicht gefunden.")
         
-        print(f"Ausgewählte Pflanzen: {self.selected_plants}")
+        print(f"Ausgewählte Pflanzen: {[p[0] for p in self.selected_plants]}")
 
     def create_sowing_pattern(self, widget):
         if not self.selected_plants:
@@ -136,8 +134,8 @@ class PlantRobotApp(App):
             self.plant_info_box.append(Label("Keine Pflanzen ausgewählt.", style={'font-size': '16px', 'color': 'red'}))
             return
 
-        # Beetgröße auf 50x50 Kästchen setzen (1 Kästchen = 1cm)
-        beet_width = 100
+        # Beetgröße auf 100x100 Kästchen setzen (1 Kästchen = 1cm)
+        beet_width = 100  # Diese Größe repräsentiert 100cm x 100cm (1m x 1m)
         beet_height = 100
 
         # Saatmuster berechnen und anzeigen
@@ -158,7 +156,6 @@ class PlantRobotApp(App):
     def calculate_sowing_pattern(self, beet_width, beet_height, plants):
         pattern = []
         plant_index = 0
-
         initial_y_position = int(round(plants[0][2] / 2))
         y_position = initial_y_position
 
@@ -173,12 +170,7 @@ class PlantRobotApp(App):
             toggle = False
 
             while x_position < beet_width:
-                # Adjust y_position for zig-zag pattern
-                if toggle:
-                    row_y_position = y_position + int(round(plant_spacing / 2))
-                else:
-                    row_y_position = y_position
-                
+                row_y_position = y_position if not toggle else y_position + int(round(plant_spacing / 2))
                 row.append((plant[0], x_position, row_y_position))
                 x_position += plant_spacing
                 toggle = not toggle
@@ -187,7 +179,6 @@ class PlantRobotApp(App):
             y_position += row_spacing
             plant_index += 1
 
-        # Determine if any selected plants were not planted
         planted_plants = set(p[0] for row in pattern for p in row)
         not_planted_plants = [p[0] for p in plants if p[0] not in planted_plants]
 
@@ -204,15 +195,40 @@ class PlantRobotApp(App):
         return beet_grid
 
     def display_pattern_grid(self, beet_grid):
+        # Berechnung der Größe des Beetes basierend auf festen Werten
+        beet_width = len(beet_grid[0])
+        beet_height = len(beet_grid)
+        
+        # Festlegen der Maximalgröße des Grids in Pixeln (z.B. 900x900)
+        max_width_pixels = 900
+        max_height_pixels = 900
+        
+        # Berechnung der Zellengröße
+        cell_width = max_width_pixels / beet_width
+        cell_height = max_height_pixels / beet_height
+        cell_size = min(cell_width, cell_height)
+        
+        # Anpassung der Zellen
         self.pattern_grid.empty()
         for row in beet_grid:
             table_row = TableRow()
             for cell in row:
                 table_item = TableItem(cell, style={
-                    'width': '30px', 'height': '30px', 'text-align': 'center', 'vertical-align': 'middle'
+                    'width': f'{cell_size}px', 
+                    'height': f'{cell_size}px', 
+                    'font-size': f'{int(cell_size * 0.8)}px',  # Schriftgröße an Zellengröße anpassen
+                    'text-align': 'center', 
+                    'vertical-align': 'middle',
+                    'border': '1px solid #ddd'
                 })
+                table_item.attributes['onmouseover'] = "this.style.fontSize='{}px'".format(int(cell_size * 2.5))
+                table_item.attributes['onmouseout'] = "this.style.fontSize='{}px'".format(int(cell_size * 0.8))
+                table_item.onclick.do(self.on_cell_click, table_item, cell)
                 table_row.append(table_item)
             self.pattern_grid.append(table_row)
+
+    def on_cell_click(self, widget, item, cell):
+        widget.style['font-size'] = '{}px'.format(int(widget.style['font-size'].replace('px', '')) * 1.5)
 
 if __name__ == "__main__":
     start(PlantRobotApp, address='0.0.0.0', port=8081, start_browser=True)

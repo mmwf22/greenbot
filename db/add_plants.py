@@ -1,7 +1,12 @@
+import os
 import sqlite3
 
+# Absoluter Pfad zur Datenbankdatei
+base_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(base_dir, 'plants.db')
+
 # Verbindung zur SQLite-Datenbank herstellen
-conn = sqlite3.connect('db/plants.db')
+conn = sqlite3.connect(db_path)
 
 # Cursor-Objekt erstellen, um SQL-Befehle auszuführen
 cursor = conn.cursor()
