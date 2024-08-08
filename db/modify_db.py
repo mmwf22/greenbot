@@ -1,49 +1,59 @@
 import sqlite3
+import os
 
-def print_plants():
-    # Connect to the SQLite database
-    conn = sqlite3.connect('db/plants.db')
-    cursor = conn.cursor()
+# Pfad zur Datenbankdatei
+base_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(base_dir, 'plants.db')
 
-    # Query to select all plants
-    cursor.execute('SELECT * FROM Pflanzen')
-    plants = cursor.fetchall()
+def connect_db(db_path):
+    try:
+        conn = sqlite3.connect(db_path)
+        print(f"Verbunden mit der Datenbank: {db_path}")
+        return conn
+    except sqlite3.Error as e:
+        print(f"Fehler beim Verbinden mit der Datenbank: {e}")
+        return None
 
-    # Print each plant with its attributes
-    for plant in plants:
-        print(f"Name: {plant[1]}, Pflanzabstand: {plant[2]}, Reihenabstand: {plant[3]}, Saattiefe: {plant[4]}")
+def print_plants(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Pflanzen")
+        plants = cursor.fetchall()
+        print("Pflanzen in der Datenbank:")
+        for plant in plants:
+            print(f"ID: {plant[0]}, Name: {plant[1]}, Pflanzabstand: {plant[2]}, Reihenabstand: {plant[3]}, Saattiefe: {plant[4]}")
+    except sqlite3.Error as e:
+        print(f"Fehler beim Abrufen der Pflanzen: {e}")
 
-    # Close the connection
-    conn.close()
+def remove_duplicate_plants(conn):
+    try:
+        cursor = conn.cursor()
 
-def lower_values_by_30_percent():
-    # Connect to the SQLite database
-    conn = sqlite3.connect('db/plants.db')
-    cursor = conn.cursor()
+        # Finden und Entfernen von doppelten Pflanzen auf Basis des Namens
+        cursor.execute("""
+            DELETE FROM Pflanzen
+            WHERE rowid NOT IN (
+                SELECT MIN(rowid)
+                FROM Pflanzen
+                GROUP BY name
+            )
+        """)
 
-    # Query to select all plants
-    cursor.execute('SELECT * FROM Pflanzen')
-    plants = cursor.fetchall()
+        conn.commit()
+        print("Doppelte Einträge wurden entfernt.")
+    except sqlite3.Error as e:
+        print(f"Fehler beim Entfernen von doppelten Einträgen: {e}")
 
-    # Calculate the new values and update the database
-    for plant in plants:
-        name = plant[1]
-        pflanzabstand = round(float(plant[2]) * 0.7, 1)
-        reihenabstand = round(float(plant[3]) * 0.7, 1)
-        saattiefe = float(plant[4])
+def main():
+    conn = connect_db(db_path)
+    
+    if conn:
+        print("Vor dem Entfernen der Duplikate:")
+        print_plants(conn)
+        remove_duplicate_plants(conn)
+        print("\nNach dem Entfernen der Duplikate:")
+        print_plants(conn)
+        conn.close()
 
-        cursor.execute('UPDATE Pflanzen SET pflanzabstand = ?, reihenabstand = ?, saattiefe = ? WHERE name = ?', 
-                       (pflanzabstand, reihenabstand, saattiefe, name))
-
-    # Commit the changes and close the connection
-    conn.commit()
-    conn.close()
-
-# Call the functions
-print("Before lowering values:")
-print_plants()
-
-lower_values_by_30_percent()
-
-print("\nAfter lowering values by 30%:")
-print_plants()
+if __name__ == '__main__':
+    main()

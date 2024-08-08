@@ -1,7 +1,12 @@
 import sqlite3
+import os
+
+# Pfad zur Datenbankdatei
+base_dir = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(base_dir, 'plants.db')
 
 # Verbindung zur SQLite-Datenbank herstellen (falls noch nicht vorhanden, wird sie erstellt)
-conn = sqlite3.connect('plants.db')
+conn = sqlite3.connect(db_path)
 
 # Cursor-Objekt erstellen, um SQL-Befehle auszuführen
 cursor = conn.cursor()
@@ -20,7 +25,7 @@ CREATE TABLE IF NOT EXISTS Pflanzen (
 # Tabelle erstellen
 cursor.execute(create_table_query)
 
-# Änderungen speichern und Verbindung schließen
+# Änderungen speichern und Verbindung schliessen
 conn.commit()
 conn.close()
 
