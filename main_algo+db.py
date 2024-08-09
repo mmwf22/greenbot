@@ -93,8 +93,8 @@ if not selected_plants:
     exit()
 
 # Beetgröße (in cm)
-beet_width = 100
-beet_height = 100
+beet_width = 60
+beet_height = 60
 
 # Saatmuster berechnen und ausgeben
 sowing_pattern, not_planted_plants = calculate_sowing_pattern(beet_width, beet_height, selected_plants)
@@ -102,6 +102,6 @@ print_sowing_pattern(sowing_pattern, beet_width, beet_height)
 
 # Print a message if some plants could not be planted
 if not_planted_plants:
-    print("Die folgenden Pflanzen konnten wegen des begrenzte Platzes nicht gepflanzt werden:")
+    print("Die folgenden Pflanzen konnten wegen des begrenzten Platzes nicht gepflanzt werden:")
     for plant in not_planted_plants:
         print(f"- {plant}")

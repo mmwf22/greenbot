@@ -135,8 +135,8 @@ class PlantRobotApp(App):
             return
 
         # Beetgröße auf 100x100 Kästchen setzen (1 Kästchen = 1cm)
-        beet_width = 100  # Diese Größe repräsentiert 100cm x 100cm (1m x 1m)
-        beet_height = 100
+        beet_width = 60  # Diese Größe repräsentiert 100cm x 100cm (1m x 1m)
+        beet_height = 60
 
         # Saatmuster berechnen und anzeigen
         pattern, not_planted_plants = self.calculate_sowing_pattern(beet_width, beet_height, self.selected_plants)
