@@ -16,7 +16,7 @@ cursor.execute(delete_query)
 cursor.execute("DROP TABLE IF EXISTS Pflanzen")
 cursor.execute("CREATE TABLE Pflanzen (id INTEGER PRIMARY KEY, name TEXT, pflanzabstand REAL, reihenabstand REAL, saattiefe REAL)")
 
-# Änderungen speichern und Verbindung schließen
+# Änderungen speichern und Verbindung schliessen
 conn.commit()
 conn.close()
 
