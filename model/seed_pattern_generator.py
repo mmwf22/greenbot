@@ -1,4 +1,22 @@
 def calculate_sowing_pattern(plants, beet_width, beet_height):
+    """
+    Berechnet das Saatmuster für die Pflanzen im Beet.
+
+    Diese Funktion generiert ein Pflanzmuster basierend auf den Abständen
+    zwischen den Pflanzen und den Abständen zwischen den Reihen. Das Muster
+    wird als Liste von Pflanzpositionen zurückgegeben, zusammen mit einer Liste
+    von Pflanzen, die nicht gepflanzt wurden.
+
+    Parameter:
+        plants (list): Eine Liste von Pflanzen, wobei jede Pflanze eine
+            Tupelstruktur (name, pflanzabstand, reihenabstand) hat.
+        beet_width (int): Die Breite des Beets in Zellen.
+        beet_height (int): Die Höhe des Beets in Zellen.
+
+    Returns:
+        tuple: Ein Tupel, bestehend aus dem Saatmuster (Liste von Listen mit
+        Pflanzpositionen) und einer Liste von Pflanzen, die nicht gepflanzt wurden.
+    """
     pattern = []
     plant_index = 0
     initial_y_position = int(round(plants[0][2] / 2))

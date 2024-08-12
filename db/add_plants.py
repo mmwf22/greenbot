@@ -25,13 +25,16 @@ pflanzen = [
     ("Tomaten", 80.0, 80.0, 0.2),
     ("Cherry-Tomaten", 80.0, 80.0, 0.2),
     ("Schnittsalat", 10.0, 10.0, 0.2),
-    ("Mangold", 25.0, 30.0, 2),
+    ("Mangold", 25.0, 30.0, 2.0),
     ("Petersilie", 2.0, 20.0, 0.2),
     ("Dill", 2.0, 15.0, 0.2)
 ]
 
 # SQL-Befehl zum Einfügen von Pflanzen
-insert_query = "INSERT INTO Pflanzen (name, pflanzabstand, reihenabstand, saattiefe) VALUES (?, ?, ?, ?)"
+insert_query = """
+INSERT INTO Pflanzen (name, pflanzabstand, reihenabstand, saattiefe)
+VALUES (?, ?, ?, ?)
+"""
 
 # Pflanzen in die Tabelle einfügen
 for pflanze in pflanzen:
